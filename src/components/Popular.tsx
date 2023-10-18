@@ -47,7 +47,8 @@ const Popular = () => {
 
 const PopularStyled = styled.div`
   display: flex;
-  .popular-anime: {
+
+  .popular-anime {
     margin-top: 2rem;
     padding-top: 2rem;
     padding-bottom: 2rem;
