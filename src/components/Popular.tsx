@@ -13,6 +13,7 @@ interface Anime {
 
 const Popular = () => {
   const isSearch = useAppSelector((state) => state.anime.isSearch);
+
   const fetchPopularAnime = async () => {
     const response = await axios.get(
       `${baseUrl}/top/anime?filter=bypopularity`

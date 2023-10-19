@@ -1,14 +1,14 @@
 import { Route, Routes } from "react-router-dom";
-import AnimePage from "./pages/AnimePage";
+import AnimeItem from "./components/AnimeItem";
+import Popular from "./components/Popular";
 import Gallery from "./pages/Gallery";
-import HomePage from "./pages/HomePage";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/anime/:id" element={<AnimePage />} />
+        <Route path="/" element={<Popular />} />
+        <Route path="/anime/:id" element={<AnimeItem />} />
         <Route path="/character/:id" element={<Gallery />} />
       </Routes>
     </>
