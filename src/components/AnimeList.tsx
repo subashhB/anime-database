@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import baseUrl from "../baseUrl";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useAppSelector } from "../app/hooks";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { Render } from "../pages/HomePage";
 
 interface Anime {
   mal_id: number;
@@ -11,13 +12,22 @@ interface Anime {
   images: { jpg: { large_image_url: string } };
 }
 
-const Popular = () => {
-  const isSearch = useAppSelector((state) => state.anime.isSearch);
+interface AnimeListProps {
+  rendered?: Render;
+}
 
-  const fetchPopularAnime = async () => {
-    const response = await axios.get(
-      `${baseUrl}/top/anime?filter=bypopularity`
-    );
+const AnimeList = ({ rendered }: AnimeListProps) => {
+  const isSearch = useAppSelector((state) => state.anime.isSearch);
+  const search = useAppSelector((state) => state.anime.search);
+  const queryClient = useQueryClient();
+
+  const fetchPopularAnime = async (filter: Render | undefined) => {
+    let response: AxiosResponse;
+    if (!filter) {
+      response = await axios.get(`${baseUrl}/top/anime?filter=bypopularity`);
+    } else {
+      response = await axios.get(`${baseUrl}/top/anime?filter=${filter}`);
+    }
     return response.data;
   };
 
@@ -25,12 +35,27 @@ const Popular = () => {
     pagination: string;
     data: Anime[];
   }>({
-    queryKey: ["popularAnime"],
-    queryFn: fetchPopularAnime,
+    queryKey: ["popularAnime", rendered],
+    queryFn: () => fetchPopularAnime(rendered),
   });
+
   const conditionalRender = () => {
+    console.log(isSearch);
     if (!isSearch) {
       return popularAnime?.data.map((anime) => {
+        return (
+          <Link to={`/anime/${anime.mal_id}`} key={anime.mal_id}>
+            <img src={anime.images.jpg.large_image_url} alt={anime.title} />
+          </Link>
+        );
+      });
+    } else {
+      const searchResults = queryClient.getQueryData<{
+        pagination: string;
+        data: Anime[];
+      }>(["searchAnime", search]);
+      console.log(searchResults);
+      return searchResults?.data.map((anime) => {
         return (
           <Link to={`/anime/${anime.mal_id}`} key={anime.mal_id}>
             <img src={anime.images.jpg.large_image_url} alt={anime.title} />
@@ -75,4 +100,4 @@ const PopularStyled = styled.div`
   }
 `;
 
-export default Popular;
+export default AnimeList;
